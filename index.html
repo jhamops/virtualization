@@ -3,44 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Digitaliza tus Tarjetas - Web</title>
-    <!-- Tailwind CSS CDN para estilos rápidos y responsivos -->
+    <title>Digitaliza tu Tarjeta Física al Instante | Demo Gratuita</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Inter', sans-serif;
+            background-attachment: fixed;
+            background-size: cover;
+            background-repeat: no-repeat;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 1rem;
         }
-        .canvas-preview-container {
-            position: relative;
-            width: 100%;
-            max-width: 400px;
-            margin: 0 auto;
+        .section-container {
+            padding: 2rem;
             border-radius: 0.75rem;
-            overflow: hidden;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            background-color: #ffffff;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+            width: 100%;
+            max-width: 64rem; /* max-w-4xl changed to 64rem for better fit */
+            margin-bottom: 2rem;
+            text-align: center;
+            background-color: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+        .section-container.bg-blue-600 {
+            background-color: #2563eb;
+            color: white;
+            backdrop-filter: none;
+            -webkit-backdrop-filter: none;
         }
         canvas {
             display: block;
             width: 100%;
-            height: auto; 
+            height: auto;
         }
         .upload-button {
-            background-image: linear-gradient(to right, #6a11cb 0%, #2575fc 100%);
+            background-image: linear-gradient(to right, #4a90e2 0%, #007bff 100%);
             transition: all 0.3s ease;
         }
         .upload-button:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-        .reset-button {
-            background-color: #ef4444;
-            transition: all 0.3s ease;
-        }
-        .reset-button:hover {
-            background-color: #dc2626;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
         }
         .loader {
             border: 4px solid #f3f3f3;
@@ -55,117 +62,205 @@
             100% { transform: rotate(360deg); }
         }
         .virtual-card {
-            width: 320px; /* Ancho típico de tarjeta de presentación */
-            height: 180px; /* Alto típico de tarjeta de presentación */
-            background-color: #ffffff; /* Fondo blanco */
-            color: #333; /* Color de texto oscuro */
+            width: 320px;
+            height: auto;
+            background-color: #ffffff;
+            color: #333;
             padding: 24px;
             border-radius: 12px;
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            transform: perspective(1000px) rotateY(0deg); /* Para efecto 3D sutil */
+            transform: perspective(1000px) rotateY(0deg);
             transition: transform 0.3s ease-in-out;
-            border: 1px solid #e2e8f0; /* Borde ligero */
+            border: 1px solid #e2e8f0;
+            margin-top: 20px;
         }
         .virtual-card:hover {
-            transform: perspective(1000px) rotateY(5deg) scale(1.02);
+            transform: perspective(1000px) rotateY(2deg) scale(1.01);
         }
-        .virtual-card .chip { /* No usado para tarjeta de presentación, pero mantenido por si acaso */
-            width: 40px;
-            height: 30px;
-            background-color: #d4af37;
-            border-radius: 4px;
-            margin-bottom: 15px;
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(74, 144, 226, 0.7);
+            }
+            70% {
+                transform: scale(1.05);
+                box-shadow: 0 0 0 10px rgba(74, 144, 226, 0);
+            }
+            100% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(74, 144, 226, 0);
+            }
         }
-        .virtual-card .card-number { /* No usado para tarjeta de presentación */
-            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
-            font-size: 24px;
-            letter-spacing: 2px;
-            margin-bottom: 10px;
-        }
-        .virtual-card .card-holder, .virtual-card .expiry-date { /* No usado para tarjeta de presentación */
-            font-size: 14px;
-            opacity: 0.8;
-        }
-        .virtual-card .card-value { /* No usado para tarjeta de presentación */
-            font-size: 18px;
-            font-weight: bold;
-        }
-        .virtual-card .card-type { /* No usado para tarjeta de presentación */
-            font-size: 20px;
-            font-weight: bold;
-            text-transform: uppercase;
+        .cta-pulse {
+            animation: pulse 2s infinite;
         }
     </style>
 </head>
-<body class="flex flex-col items-center justify-center min-h-screen p-4">
+<body>
+    <!-- Container for all marketing/landing page content -->
+    <main id="marketingContent" class="w-full flex flex-col items-center">
+        <header class="section-container relative z-10">
+            <h1 class="text-4xl md:text-5xl font-extrabold text-gray-900 mb-4 leading-tight">
+                Digitaliza tus Tarjetas Físicas al Instante
+            </h1>
+            <p class="text-lg md:text-xl text-gray-700 mb-8 max-w-2xl mx-auto">
+                Convierte tus tarjetas de presentación, membresías o cualquier tarjeta física en versiones virtuales seguras. Accede a ellas desde cualquier lugar y compártelas fácilmente.
+            </p>
+            
+            <div class="flex flex-col items-center space-y-4">
+                <button id="startDemoButton" class="upload-button text-white font-bold py-4 px-10 rounded-full shadow-lg hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-blue-300 focus:ring-opacity-75 transition-all duration-300 transform hover:scale-105 cta-pulse">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 inline-block mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-1.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                    ¡Prueba la Demo Ahora!
+                </button>
+                <p class="text-sm text-gray-600 mt-2">No se requiere registro. Solo sube una tarjeta de prueba.</p>
+            </div>
+        </header>
 
-    <!-- Sección de la Landing Page / Introducción -->
-    <header class="bg-white p-8 rounded-xl shadow-lg w-full max-w-4xl mb-8 text-center">
-        <h1 class="text-4xl font-extrabold text-gray-900 mb-4">Digitaliza tus Tarjetas Físicas</h1>
-        <p class="text-lg text-gray-700 mb-6">Convierte tus tarjetas físicas en versiones virtuales seguras en tu perfil. ¡Rápido, fácil y sin complicaciones!</p>
-        <div id="authSection" class="flex flex-col items-center space-y-4">
-            <button id="loginButton" class="upload-button text-white font-semibold py-3 px-8 rounded-xl shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-75 transition-all duration-300">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 inline-block mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3v-1m18-8V9a3 3 0 00-3-3H6a3 3 0 00-3 3v1" />
-                </svg>
-                Iniciar Sesión / Registrarse (Demo)
-            </button>
-        </div>
-        <div class="text-sm text-gray-500 mt-4">
-            <p>Estado de la aplicación: <span class="font-medium text-blue-600" id="statusMessage">Cargando aplicación...</span></p>
-            <p id="userIdDisplay" class="hidden">Tu ID de Usuario (para demo): <span class="font-mono text-purple-600 break-all" id="userId"></span></p>
-        </div>
-    </header>
-
-    <!-- Sección de Carga de Foto (oculta hasta el "login") -->
-    <section id="uploadSection" class="bg-white p-8 rounded-xl shadow-lg w-full max-w-4xl mb-8 hidden">
-        <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">Tu tarjeta esta virtualizada!</h2>
-        <div class="flex flex-col items-center space-y-6">
-            <input
-                type="file"
-                id="cardImageUpload"
-                accept="image/*"
-                class="hidden"
-                onchange="handleImageUpload(event)"
-            />
-            <label
-                for="cardImageUpload"
-                id="uploadButtonLabel"
-                class="cursor-pointer text-white font-semibold py-3 px-8 rounded-xl shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-75 transition-all duration-300 bg-gradient-to-r from-blue-600 to-purple-700 hover:from-blue-700 hover:to-purple-800"
-            >
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 inline-block mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
-                </svg>
-                Toma foto a tu tarjeta ;)
-            </label>
-
-            <div id="loader" class="loader hidden"></div>
-
-            <div id="imagePreviewContainer" class="mt-6 p-4 border border-gray-300 rounded-lg shadow-inner bg-gray-50 max-w-full overflow-hidden hidden">
-                <h3 class="text-lg font-semibold text-gray-700 mb-2 text-center">Previsualización de la Tarjeta Subida</h3>
-                <div class="flex justify-center">
-                    <canvas id="photoCanvas" class="max-w-full h-auto rounded-lg shadow-md"></canvas>
+        <section class="section-container">
+            <h2 class="text-3xl font-bold text-gray-800 mb-6 text-center">¿Por qué digitalizar tus tarjetas?</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="flex flex-col items-center text-center">
+                    <div class="p-3 bg-blue-100 rounded-full mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v3h8z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-800 mb-2">Seguridad Reforzada</h3>
+                    <p class="text-gray-600">Almacena tus tarjetas de forma segura en la nube, protegidas contra pérdidas o daños físicos.</p>
+                </div>
+                <div class="flex flex-col items-center text-center">
+                    <div class="p-3 bg-green-100 rounded-full mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-800 mb-2">Acceso Instantáneo</h3>
+                    <p class="text-gray-600">Ten siempre a mano la información de tus tarjetas desde cualquier dispositivo, cuando la necesites.</p>
+                </div>
+                <div class="flex flex-col items-center text-center">
+                    <div class="p-3 bg-purple-100 rounded-full mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10l-2 1m0 0l-2-1m2 1v2.5M20 7l-2 1m0 0l-2-1m2 1V7.5M14 4h6.042A2 2 0 0122 6.042V18.958A2 2 0 0120.958 21H3.042A2 2 0 011 18.958V6.042A2 2 0 013.042 4H9m10 0a2 2 0 012 2v6a2 2 0 01-2 2h-6a2 2 0 01-2-2V6a2 2 0 012-2h6zM15 15h.01" />
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-800 mb-2">Organización Inteligente</h3>
+                    <p class="text-gray-600">Dile adiós a la cartera abultada. Guarda y clasifica todas tus tarjetas en un solo lugar.</p>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <!-- Sección del Perfil y Tarjetas Virtuales (oculta hasta el "login") -->
-    <section id="profileSection" class="bg-white p-8 rounded-xl shadow-lg w-full max-w-4xl hidden">
-        <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">Tu Tarjeta Virtual</h2>
-        <div id="virtualCardsContainer" class="flex justify-center">
-            <p class="text-center text-gray-600">Aún no tienes tarjetas virtuales. ¡Sube una para empezar!</p>
-        </div>
-    </section>
+        <section class="section-container">
+            <h2 class="text-3xl font-bold text-gray-800 mb-6 text-center">¿Cómo funciona la digitalización?</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="flex flex-col items-center text-center">
+                    <div class="p-3 bg-yellow-100 rounded-full mb-4">
+                        <span class="text-2xl font-bold text-yellow-600">1</span>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-800 mb-2">Inicia la Demo</h3>
+                    <p class="text-gray-600">Haz clic en el botón "Prueba la Demo Ahora".</p>
+                </div>
+                <div class="flex flex-col items-center text-center">
+                    <div class="p-3 bg-red-100 rounded-full mb-4">
+                        <span class="text-2xl font-bold text-red-600">2</span>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-800 mb-2">Sube tu tarjeta</h3>
+                    <p class="text-gray-600">Toma una foto clara de tu tarjeta física.</p>
+                </div>
+                <div class="flex flex-col items-center text-center">
+                    <div class="p-3 bg-green-100 rounded-full mb-4">
+                        <span class="text-2xl font-bold text-green-600">3</span>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-800 mb-2">¡Listo!</h3>
+                    <p class="text-gray-600">Verás tu tarjeta virtualizada al instante.</p>
+                </div>
+            </div>
+        </section>
 
+        <section class="section-container">
+            <h2 class="text-3xl font-bold text-gray-800 mb-6 text-center">Lo que dicen nuestros usuarios</h2>
+            <div class="space-y-6">
+                <blockquote class="text-center text-gray-700 italic border-l-4 border-blue-500 pl-4 py-2">
+                    "¡Increíble! Nunca pensé que fuera tan fácil y seguro tener mis tarjetas en un solo lugar. ¡Adiós a la cartera abultada!"
+                    <footer class="mt-2 text-gray-500 not-italic">- María L., Emprendedora</footer>
+                </blockquote>
+                <blockquote class="text-center text-gray-700 italic border-l-4 border-green-500 pl-4 py-2">
+                    "Una solución perfecta para tener mis tarjetas de presentación siempre a mano y compartirlas digitalmente. ¡Muy útil!"
+                    <footer class="mt-2 text-gray-500 not-italic">- Carlos R., Ventas</footer>
+                </blockquote>
+            </div>
+        </section>
+
+        <section class="section-container bg-blue-600 text-white p-10">
+            <h2 class="text-3xl md:text-4xl font-bold mb-6">¿Listo para probar la digitalización?</h2>
+            <button id="startDemoButtonBottom" class="upload-button text-white font-bold py-4 px-10 rounded-full shadow-lg hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-white focus:ring-opacity-75 transition-all duration-300 transform hover:scale-105 cta-pulse">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 inline-block mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-1.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+                ¡Empieza tu Demo Gratis!
+            </button>
+            <p class="text-sm mt-4 opacity-80">Experimenta la digitalización al instante.</p>
+        </section>
+    </main>
+
+    <!-- Container for the entire demo application -->
+    <div id="demoContainer" class="hidden w-full flex-col items-center justify-start min-h-screen p-4">
+        <section id="uploadSection" class="section-container relative z-20">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">Paso 1: Toma una foto a tu tarjeta</h2>
+            <div class="flex flex-col items-center space-y-6">
+                <input
+                    type="file"
+                    id="cardImageUpload"
+                    accept="image/*"
+                    class="hidden"
+                    onchange="handleImageUpload(event)"
+                />
+                <label
+                    for="cardImageUpload"
+                    id="uploadButtonLabel"
+                    class="cursor-pointer text-white font-semibold py-3 px-8 rounded-xl shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-75 transition-all duration-300 bg-gradient-to-r from-blue-600 to-purple-700 hover:from-blue-700 hover:to-purple-800"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 inline-block mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                    </svg>
+                    Toma foto a tu tarjeta ;)
+                </label>
+
+                <div id="loader" class="loader hidden"></div>
+
+                <div id="imagePreviewContainer" class="mt-6 p-4 border border-gray-300 rounded-lg shadow-inner bg-gray-50 w-full overflow-hidden hidden">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-2 text-center">Previsualización y Proceso de Digitalización</h3>
+                    <div class="flex justify-center">
+                        <canvas id="photoCanvas" class="max-w-full h-auto rounded-lg shadow-md"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="profileSection" class="section-container relative z-20">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">Paso 2: Tu Tarjeta Virtualizada</h2>
+            <div id="virtualCardsContainer" class="flex justify-center flex-col items-center">
+                <p class="text-center text-gray-600 mb-4">¡Aquí verás tu tarjeta digitalizada!</p>
+            </div>
+            <div class="text-sm text-gray-500 mt-8">
+                <p>Estado de la demo: <span class="font-medium text-blue-600" id="statusMessage"></span></p>
+                <p id="userIdDisplay" class="hidden">Tu ID de Demo: <span class="font-mono text-purple-600 break-all" id="userId"></span></p>
+            </div>
+        </section>
+    </div>
+    
     <script>
-        const loginButton = document.getElementById('loginButton');
-        const authSection = document.getElementById('authSection');
-        const uploadSection = document.getElementById('uploadSection');
-        const profileSection = document.getElementById('profileSection');
+        // --- DOM Element Selection ---
+        const marketingContent = document.getElementById('marketingContent');
+        const demoContainer = document.getElementById('demoContainer');
+        
+        const startDemoButton = document.getElementById('startDemoButton');
+        const startDemoButtonBottom = document.getElementById('startDemoButtonBottom');
+        
         const userIdDisplay = document.getElementById('userIdDisplay');
         const userIdSpan = document.getElementById('userId');
         const statusMessage = document.getElementById('statusMessage');
@@ -177,70 +272,96 @@
         const imagePreviewContainer = document.getElementById('imagePreviewContainer');
         const virtualCardsContainer = document.getElementById('virtualCardsContainer');
 
+        // --- State Variables ---
         let currentUserId = null;
-        let virtualCard = null; // Ahora solo almacenamos una tarjeta virtual
-        let originalImageForCanvas = new Image(); // Para mantener la imagen original en el canvas
+        let virtualCard = null;
+        let originalImageForCanvas = new Image();
 
-        // Función para simular el inicio de sesión
-        loginButton.addEventListener('click', () => {
-            statusMessage.textContent = "Simulando inicio de sesión...";
-            loader.classList.remove('hidden');
-            setTimeout(() => {
-                currentUserId = 'user_' + Math.random().toString(36).substring(2, 11); // ID de usuario aleatorio
-                userIdSpan.textContent = currentUserId;
-                userIdDisplay.classList.remove('hidden');
-                authSection.classList.add('hidden'); // Ocultar sección de login
-                uploadSection.classList.remove('hidden'); // Mostrar sección de carga
-                profileSection.classList.remove('hidden'); // Mostrar sección de perfil
-                statusMessage.textContent = `¡Bienvenido! Tu ID de usuario: ${currentUserId}`;
-                loader.classList.add('hidden');
-                updateVirtualCardsDisplay(); // Asegurarse de que el mensaje "no hay tarjetas" se muestre
-            }, 2000);
-        });
+        // --- Core Functions ---
 
-        // Función para dibujar la imagen original en el canvas y ajustar su tamaño
+        /**
+         * Hides the marketing content and shows the demo application.
+         * This is the main function to switch views.
+         */
+        const startDemo = () => {
+            // Hide the main marketing content
+            marketingContent.classList.add('hidden');
+
+            // Show the demo container by removing 'hidden' and adding 'flex' for layout
+            demoContainer.classList.remove('hidden');
+            demoContainer.classList.add('flex');
+
+            // Generate a temporary user ID for the demo session
+            currentUserId = 'demo_user_' + Math.random().toString(36).substring(2, 11);
+            userIdSpan.textContent = currentUserId;
+            userIdDisplay.classList.remove('hidden');
+            
+            statusMessage.textContent = `¡Bienvenido a la demo! Sube una foto para empezar.`;
+            updateVirtualCardsDisplay();
+        };
+
+        /**
+         * Handles the file input change event when a user selects an image.
+         * @param {Event} event - The file input change event.
+         */
+        async function handleImageUpload(event) {
+            const file = event.target.files[0];
+            if (!file) {
+                return;
+            }
+
+            statusMessage.textContent = "Cargando imagen...";
+            imagePreviewContainer.classList.remove('hidden');
+
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                const imageDataUrl = e.target.result;
+                // First, draw the uploaded image on the canvas
+                await drawOriginalImageOnCanvas(imageDataUrl);
+                // Then, simulate the data extraction process
+                await simulateCardDataExtraction(imageDataUrl);
+            };
+            reader.readAsDataURL(file);
+        }
+
+        /**
+         * Draws the provided image onto the canvas, resizing it to fit the container.
+         * @param {string} imageDataUrl - The base64 data URL of the image.
+         */
         function drawOriginalImageOnCanvas(imageDataUrl) {
             return new Promise(resolve => {
                 originalImageForCanvas.onload = () => {
                     const aspectRatio = originalImageForCanvas.width / originalImageForCanvas.height;
-                    const maxWidth = imagePreviewContainer.clientWidth - 32; // Restar padding
-                    let newWidth = originalImageForCanvas.width;
-                    let newHeight = newWidth / aspectRatio; // Calcular altura basada en el nuevo ancho y aspecto
-
-                    // Asegurarse de que la altura no exceda un máximo si se desea
-                    const maxHeight = 300; // Por ejemplo, limitar la altura máxima de la previsualización
-                    if (newHeight > maxHeight) {
-                        newHeight = maxHeight;
-                        newWidth = newHeight * aspectRatio;
-                    }
-
+                    // Ensure container is visible before measuring
+                    const containerWidth = imagePreviewContainer.clientWidth > 0 ? imagePreviewContainer.clientWidth - 32 : 300;
+                    
+                    let newWidth = containerWidth;
+                    let newHeight = newWidth / aspectRatio;
 
                     photoCanvas.width = newWidth;
                     photoCanvas.height = newHeight;
                     ctx.clearRect(0, 0, photoCanvas.width, photoCanvas.height);
-                    ctx.drawImage(originalImageForCanvas, 0, 0, photoCanvas.width, photoCanvas.height);
+                    ctx.drawImage(originalImageForCanvas, 0, 0, newWidth, newHeight);
                     resolve();
                 };
                 originalImageForCanvas.src = imageDataUrl;
             });
         }
 
-        // Función para simular la extracción de datos de la tarjeta con visualización
+        /**
+         * Simulates an AI/OCR process of extracting data from the card image.
+         * @param {string} imageDataUrl - The base64 data URL of the image.
+         */
         async function simulateCardDataExtraction(imageDataUrl) {
+            // Show loader and disable upload button during simulation
             loader.classList.remove('hidden');
             uploadButtonLabel.classList.add('opacity-50', 'cursor-not-allowed');
             cardImageUpload.disabled = true;
 
-            statusMessage.textContent = "4. Backend envía la foto a la API de Visión por Computadora...";
-            await new Promise(resolve => setTimeout(resolve, 2000)); // Simula latencia de red
+            statusMessage.textContent = "Analizando tu tarjeta...";
+            await new Promise(resolve => setTimeout(resolve, 1500));
 
-            statusMessage.textContent = "5. API de Visión por Computadora analiza la tarjeta...";
-            await new Promise(resolve => setTimeout(resolve, 1000));
-
-            // Volver a dibujar la imagen original antes de superponer los datos
-            await drawOriginalImageOnCanvas(imageDataUrl);
-
-            // Simulación de datos extraídos de una tarjeta de presentación
+            // Mock data that would be "extracted"
             const simulatedCardData = {
                 name: "FELIPE SÁENZ",
                 title: "Asesor de Marketing",
@@ -250,144 +371,74 @@
                 social: "@sitiocredible"
             };
 
-            // --- Simulación de la "virtualización" visual en el canvas ---
-            ctx.strokeStyle = '#34D399'; // Verde
-            ctx.lineWidth = 4;
-            ctx.font = `${Math.max(14, photoCanvas.height * 0.04)}px Arial Black`;
+            // Simulate drawing boxes on the canvas to show "detection"
+            ctx.strokeStyle = '#34D399';
+            ctx.lineWidth = 3;
+            ctx.font = `bold ${Math.max(12, photoCanvas.height * 0.04)}px Inter`;
             ctx.fillStyle = '#34D399';
 
-            // Simular detección de Nombre
-            statusMessage.textContent = "Detectando Nombre...";
-            let xName = photoCanvas.width * 0.1;
-            let yName = photoCanvas.height * 0.3;
-            let widthName = photoCanvas.width * 0.7;
-            let heightName = photoCanvas.height * 0.1;
-            ctx.strokeRect(xName, yName, widthName, heightName);
-            ctx.fillText("Nombre", xName + 5, yName - 5);
+            statusMessage.textContent = "Extrayendo información clave...";
+            const drawDetectionBox = async (label, x, y, w, h) => {
+                ctx.strokeRect(x, y, w, h);
+                ctx.fillText(label, x + 5, y - 5);
+                await new Promise(r => setTimeout(r, 500));
+            };
+
+            await drawDetectionBox("Nombre", photoCanvas.width * 0.1, photoCanvas.height * 0.3, photoCanvas.width * 0.7, photoCanvas.height * 0.1);
+            await drawDetectionBox("Cargo", photoCanvas.width * 0.1, photoCanvas.height * 0.45, photoCanvas.width * 0.6, photoCanvas.height * 0.08);
+            await drawDetectionBox("Contacto", photoCanvas.width * 0.1, photoCanvas.height * 0.6, photoCanvas.width * 0.7, photoCanvas.height * 0.2);
+
+            statusMessage.textContent = "Creando tu tarjeta virtual...";
             await new Promise(resolve => setTimeout(resolve, 1000));
 
-            // Simular detección de Cargo
-            statusMessage.textContent = "Detectando Cargo...";
-            let xTitle = photoCanvas.width * 0.1;
-            let yTitle = photoCanvas.height * 0.45;
-            let widthTitle = photoCanvas.width * 0.6;
-            let heightTitle = photoCanvas.height * 0.08;
-            ctx.strokeRect(xTitle, yTitle, widthTitle, heightTitle);
-            ctx.fillText("Cargo", xTitle + 5, yTitle - 5);
-            await new Promise(resolve => setTimeout(resolve, 1000));
-
-            // Simular detección de Teléfono
-            statusMessage.textContent = "Detectando Teléfono...";
-            let xPhone = photoCanvas.width * 0.1;
-            let yPhone = photoCanvas.height * 0.6;
-            let widthPhone = photoCanvas.width * 0.5;
-            let heightPhone = photoCanvas.height * 0.08;
-            ctx.strokeRect(xPhone, yPhone, widthPhone, heightPhone);
-            ctx.fillText("Teléfono", xPhone + 5, yPhone - 5);
-            await new Promise(resolve => setTimeout(resolve, 1000));
-
-            // Simular detección de Email
-            statusMessage.textContent = "Detectando Email...";
-            let xEmail = photoCanvas.width * 0.1;
-            let yEmail = photoCanvas.height * 0.75;
-            let widthEmail = photoCanvas.width * 0.7;
-            let heightEmail = photoCanvas.height * 0.08;
-            ctx.strokeRect(xEmail, yEmail, widthEmail, heightEmail);
-            ctx.fillText("Email", xEmail + 5, yEmail - 5);
-            await new Promise(resolve => setTimeout(resolve, 1000));
-
-            // Simular detección de Red Social
-            statusMessage.textContent = "Detectando Red Social...";
-            let xSocial = photoCanvas.width * 0.1;
-            let ySocial = photoCanvas.height * 0.9;
-            let widthSocial = photoCanvas.width * 0.4;
-            let heightSocial = photoCanvas.height * 0.08;
-            ctx.strokeRect(xSocial, ySocial, widthSocial, heightSocial);
-            ctx.fillText("Social", xSocial + 5, ySocial - 5);
-            await new Promise(resolve => setTimeout(resolve, 1000));
-            // --- Fin de la simulación de virtualización visual ---
-
-
-            statusMessage.textContent = "6. Backend procesa y estructura los resultados...";
-            await new Promise(resolve => setTimeout(resolve, 1000));
-
-            // Solo almacenar la última tarjeta virtual
+            // Create the virtual card object
             virtualCard = {
-                id: 'card_' + Date.now(), // ID único para la tarjeta
+                id: 'card_' + Date.now(),
                 ...simulatedCardData,
-                imageUrl: imageDataUrl, // Guardar la imagen en base64 para la demo
+                imageUrl: imageDataUrl,
                 createdAt: new Date()
             };
 
-            statusMessage.textContent = "7. Tarjeta virtual creada y guardada en tu perfil.";
+            statusMessage.textContent = "¡Tarjeta virtual creada y lista en tu perfil!";
             await new Promise(resolve => setTimeout(resolve, 1000));
 
+            // Hide loader and re-enable upload button
             loader.classList.add('hidden');
             uploadButtonLabel.classList.remove('opacity-50', 'cursor-not-allowed');
             cardImageUpload.disabled = false;
-            statusMessage.textContent = "¡Proceso completado! Tarjeta virtual añadida a tu perfil.";
-
-            updateVirtualCardsDisplay(); // Actualizar la visualización de la tarjeta
+            
+            // Update the display with the new card
+            updateVirtualCardsDisplay();
         }
 
-        // Manejar la subida de la imagen
-        async function handleImageUpload(event) {
-            const file = event.target.files[0];
-            if (!file) {
-                return;
-            }
-
-            statusMessage.textContent = "1. Usuario sube la foto de la tarjeta.";
-            imagePreviewContainer.classList.remove('hidden'); // Mostrar contenedor de previsualización
-
-            const reader = new FileReader();
-            reader.onload = async (e) => {
-                const imageDataUrl = e.target.result;
-                
-                // Dibujar la imagen en el canvas para previsualización
-                await drawOriginalImageOnCanvas(imageDataUrl);
-
-                statusMessage.textContent = "2. Aplicación web envía la foto al backend...";
-                await new Promise(resolve => setTimeout(resolve, 1500)); // Simula latencia de subida
-
-                statusMessage.textContent = "3. Backend recibe la foto.";
-                await new Promise(resolve => setTimeout(resolve, 500));
-
-                await simulateCardDataExtraction(imageDataUrl);
-            };
-            reader.readAsDataURL(file);
-        }
-
-        // Función para crear un elemento de tarjeta virtual (tarjeta de presentación)
+        /**
+         * Creates an HTML element for a virtual card.
+         * @param {object} card - The card data object.
+         * @returns {HTMLElement} The created card div element.
+         */
         function createVirtualCardElement(card) {
             const cardDiv = document.createElement('div');
-            // Adjusted styling for a business card look
-            cardDiv.className = 'virtual-card bg-white text-gray-800 p-6 rounded-xl shadow-lg transform hover:scale-105 transition-transform duration-300 ease-in-out flex flex-col justify-between height:auto';
+            cardDiv.className = 'virtual-card bg-white text-gray-800 p-6 rounded-xl shadow-lg transform hover:scale-105 transition-transform duration-300 ease-in-out flex flex-col justify-between text-left';
             cardDiv.innerHTML = `
                 <div class="flex flex-col">
                     <div class="text-2xl font-bold mb-1">${card.name || 'Nombre Apellido'}</div>
                     <div class="text-lg text-gray-600 mb-3">${card.title || 'Cargo'}</div>
                     <div class="text-sm text-gray-500 mb-2">${card.company || 'Empresa'}</div>
                 </div>
-                <div class="flex flex-col text-sm">
-                    <div class="flex items-center mb-1">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.135a11.042 11.042 0 005.516 5.516l1.135-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                        </svg>
-                        ${card.phone || 'Teléfono'}
+                <div class="border-t border-gray-200 my-4"></div>
+                <div class="flex flex-col text-sm space-y-2">
+                    <div class="flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.135a11.042 11.042 0 005.516 5.516l1.135-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>
+                        <span>${card.phone || 'Teléfono'}</span>
                     </div>
-                    <div class="flex items-center mb-1">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8m-1 13a2 2 0 01-2 2H6a2 2 0 01-2-2V7a2 2 0 012-2h12a2 2 0 012 2v14z" />
-                        </svg>
-                        ${card.email || 'Email'}
+                    <div class="flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8m-1 13a2 2 0 01-2 2H6a2 2 0 01-2-2V7a2 2 0 012-2h12a2 2 0 012 2v14z" /></svg>
+                        <span>${card.email || 'Email'}</span>
                     </div>
                     ${card.social ? `
                     <div class="flex items-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.5 16.8V18a2 2 0 002 2H18a2 2 0 002-2v-2.5a2 2 0 00-2-2h-2.5a2 2 0 00-2 2zM12 9h.01M7.5 16.8V18a2 2 0 002 2H12a2 2 0 002-2v-2.5a2 2 0 00-2-2H9.5a2 2 0 00-2 2zM3 16.8V18a2 2 0 002 2h2.5a2 2 0 002-2v-2.5a2 2 0 00-2-2H5a2 2 0 00-2 2zM18 9h.01M12 3h.01M7.5 9h.01M18 3h.01M12 12h.01M18 12h.01M12 15h.01M12 18h.01M12 21h.01M15 21h.01M18 21h.01M21 21h.01M21 18h.01M21 15h.01M21 12h.01M21 9h.01M21 6h.01M21 3h.01M18 6h.01M15 6h.01M9 6h.01M6 6h.01M3 6h.01M3 9h.01M3 12h.01M3 15h.01M3 18h.01M3 21h.01M6 21h.01M9 21h.01" />
-                        </svg>
-                        ${card.social || ''}
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.5 16.5v-2.5a2 2 0 012-2h2.5a2 2 0 012 2v2.5a2 2 0 01-2 2h-2.5a2 2 0 01-2-2zM15.5 16.5v-2.5a2 2 0 012-2h2.5a2 2 0 012 2v2.5a2 2 0 01-2 2h-2.5a2 2 0 01-2-2zM8 8.5a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0zM18.5 8.5a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" /></svg>
+                        <span>${card.social || ''}</span>
                     </div>
                     ` : ''}
                 </div>
@@ -395,24 +446,32 @@
             return cardDiv;
         }
 
-        // Función para actualizar la visualización de las tarjetas virtuales
+        /**
+         * Updates the display area for virtual cards. Clears the container and adds the current card if it exists.
+         */
         function updateVirtualCardsDisplay() {
-            virtualCardsContainer.innerHTML = ''; // Limpiar el contenedor
-            if (virtualCard) { // Si hay una tarjeta virtual almacenada
+            virtualCardsContainer.innerHTML = ''; // Clear previous content
+            if (virtualCard) {
                 virtualCardsContainer.appendChild(createVirtualCardElement(virtualCard));
             } else {
-                virtualCardsContainer.innerHTML = '<p class="text-center text-gray-600">Aún no tienes tarjetas virtuales. ¡Sube una para empezar!</p>';
+                virtualCardsContainer.innerHTML = '<p class="text-center text-gray-600 mb-4">Sube una foto de tu tarjeta para verla digitalizada.</p>';
             }
         }
 
-        // Ajustar el canvas al redimensionar la ventana para mantener la responsividad
+        // --- Event Listeners ---
+
+        // Attach click listeners to both "start demo" buttons
+        startDemoButton.addEventListener('click', startDemo);
+        startDemoButtonBottom.addEventListener('click', startDemo);
+
+        // Add a listener to redraw the canvas if the window is resized
         window.addEventListener('resize', () => {
             if (imagePreviewContainer.classList.contains('hidden') || !originalImageForCanvas.src) return; 
-            drawOriginalImageOnCanvas(originalImageForCanvas.src); // Redibujar la imagen original y los elementos
+            drawOriginalImageOnCanvas(originalImageForCanvas.src);
         });
 
-        // Estado inicial de la aplicación
-        statusMessage.textContent = "Haz clic en 'Iniciar Sesión' para comenzar.";
+        // --- Initial State ---
+        statusMessage.textContent = "Haz clic en '¡Prueba la Demo Ahora!' para iniciar.";
     </script>
 </body>
 </html>
